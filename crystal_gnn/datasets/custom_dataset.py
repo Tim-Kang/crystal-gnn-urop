@@ -5,7 +5,7 @@ from torch.utils.data import Dataset
 from torch_geometric.data import Data, Batch
 
 
-class MatbenchDataset(Dataset):
+class CustomDataset(Dataset):
     def __init__(
         self,
         data_dir: str,
@@ -14,7 +14,7 @@ class MatbenchDataset(Dataset):
         split: str,
         **kwargs,
     ):
-        """Generate MatbenchDataset.
+        """Generate CustomDataset.
 
         Args:
             data_dir (str): directory to save the dataset
@@ -23,13 +23,8 @@ class MatbenchDataset(Dataset):
             split (str): split of the dataset, one of train, val, test
         """
         super().__init__()
-        # get fold from kwargs for Matbench
-        fold = kwargs.get("fold", None)
-        if fold is None:
-            raise ValueError("fold must be provided for MatbenchDataset")
-
         # read graph data
-        path_data = Path(data_dir, source, target, f"{split}-{target}-fold{fold}.pt")
+        path_data = Path(data_dir, source, target, f"{split}-{target}.pt")
         if not path_data.exists():
             raise FileNotFoundError(f"{path_data} does not exist")
         self.graphs = torch.load(path_data)

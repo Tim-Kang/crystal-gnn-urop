@@ -7,8 +7,6 @@ import random
 import numpy as np
 import pandas as pd
 
-from ase import Atoms
-
 import torch
 from torch_geometric.data import Dataset
 
@@ -157,15 +155,6 @@ class JarvisDataModule(BaseDataModule):
     @property
     def dataset_name(self) -> str:
         return "jarvis"
-
-    @classmethod
-    def convert_to_ase_atoms(cls, jarvis_atoms) -> Atoms:
-        return Atoms(
-            symbols=jarvis_atoms["elements"],
-            positions=jarvis_atoms["coords"],
-            cell=jarvis_atoms["lattice_mat"],
-            pbc=True,
-        )
 
     # get split indices
     def get_id_train_val_test(

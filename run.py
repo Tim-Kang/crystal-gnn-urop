@@ -39,11 +39,13 @@ def main(_config):
     logger = WandbLogger(
         project=project_name,
         name=f"{exp_name}",
-        version=f"{exp_name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
-        if not _config["test_only"]
-        else None,
+        version=(
+            f"{exp_name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+            if not _config["test_only"]
+            else None
+        ),
         save_dir=log_dir,
-        log_model="all",  # TODO: all or True?
+        log_model="True",
         group=f"{_config['source']}-{_config['target']}-{_config['model_name']}",
     )
 

@@ -1,10 +1,9 @@
-# pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
-# pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.1.0+cu118.html
-torch_geometric
-pytorch-lightning==2.1.0
+# install torch, torch_geometric and pytorch-lightning with your CUDA version
+# pip install torch==2.3.0 torchvision==0.16.0 torchaudio==2.3.0 --index-url https://download.pytorch.org/whl/cu118
+# pip install torch-geometric
+# pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.3.0+cu118.html
+# pytorch-lightning==2.3.0
 pydantic
-e3nn
-torch_runstats
 sacred
 tensorboard
 jarvis-tools
@@ -15,7 +14,7 @@ jupyterlab
 fire
 transformers
 wandb
+git+https://github.com/hackingmaterials/matbench
 
-# matbench
-# git clone https://github.com/hackingmaterials/matbench
-# pip install --user ./matbench
+# future
+# e3nn

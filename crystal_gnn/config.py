@@ -14,7 +14,7 @@ def config():
     test_only = False
 
     # prepare_data
-    source = "jarvis"  # "matbench"
+    source = "jarvis"  # "matbench", "custom"
     database_name = "dft_3d_2021"  # (Optional) for JARVIS
     target = "formation_energy_peratom"
     data_dir = "./data/"
@@ -24,7 +24,7 @@ def config():
     val_ratio = 0.1
     test_ratio = 0.1
     cutoff = 5.0
-    max_neighbors = None  # None or int TODO:
+    max_neighbors = None
 
     # dataloader
     batch_size = 64

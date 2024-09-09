@@ -2,8 +2,6 @@ from typing import Dict, Any
 from pathlib import Path
 import json
 
-from ase import Atoms
-
 import torch
 from torch_geometric.data import Dataset
 
@@ -91,7 +89,7 @@ class MatbenchDataModule(BaseDataModule):
                 [train_targets, val_targets, test_targets],
             ):
                 # convert Structure to ase Atoms
-                atoms_list = [self.convert_to_ase_atoms(s) for s in structures]
+                atoms_list = [st.to_ase_atoms() for st in structures]
                 if split == "train":
                     train_mean = targets.mean()
                     train_std = targets.std()
@@ -127,12 +125,3 @@ class MatbenchDataModule(BaseDataModule):
     @property
     def dataset_name(self) -> str:
         return "matbench"
-
-    @classmethod
-    def convert_to_ase_atoms(cls, structure) -> Atoms:
-        return Atoms(
-            numbers=structure.atomic_numbers,
-            positions=structure.cart_coords,
-            cell=structure.lattice.matrix,
-            pbc=True,
-        )

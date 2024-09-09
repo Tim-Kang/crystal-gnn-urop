@@ -21,6 +21,7 @@ data/
 *.swp
 *.sh
 *.json
+*.cif
 
 # files
 demo*.ipynb
