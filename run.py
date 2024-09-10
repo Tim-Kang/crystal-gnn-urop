@@ -48,7 +48,7 @@ def main(_config):
         ),
         save_dir=log_dir,
         log_model="True",
-        group=f"{_config['source']}-{_config['target']}-{_config['model_name']}",
+        group=f"{_config['source']}/{_config['target']}/{_config['model_name']}",
     )
 
     # set trainer
