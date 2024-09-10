@@ -66,14 +66,14 @@ class ShiftedSoftplus(torch.nn.Module):
         return self.softplus(x) - self.shift
 
 
-# TODO: depreciated
-class Normalizer(object):
+class Normalizer:
     """
     normalize for regression
     """
 
     def __init__(self, mean: float, std: float) -> None:
         if mean is not None and std is not None:
+            print(f"Normalize target with mean: {mean}, std: {std}")
             self._norm_func = lambda tensor: (tensor - mean) / std
             self._denorm_func = lambda tensor: tensor * std + mean
         else:
@@ -83,8 +83,8 @@ class Normalizer(object):
         self.mean = mean
         self.std = std
 
-    def encode(self, tensor) -> torch.Tensor:
+    def norm(self, tensor) -> torch.Tensor:
         return self._norm_func(tensor)
 
-    def decode(self, tensor) -> torch.Tensor:
+    def denorm(self, tensor) -> torch.Tensor:
         return self._denorm_func(tensor)

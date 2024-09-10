@@ -11,6 +11,8 @@ from torchmetrics.classification import Accuracy
 from torchmetrics.regression import MeanAbsoluteError, R2Score
 from transformers import get_constant_schedule_with_warmup
 
+from crystal_gnn.models.module_utils import Normalizer
+
 
 class BaseModule(LightningModule, metaclass=ABCMeta):
     def __init__(self, _config: Dict[str, Any]):
@@ -29,6 +31,8 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
         self.lr = _config["lr"]
         self.weight_decay = _config["weight_decay"]
         self.scheduler = _config["scheduler"]
+        # normalizer
+        self.normalizer = Normalizer(mean=_config["mean"], std=_config["std"])
 
     @abstractmethod
     def forward(self, data: Union[Data, Batch]) -> torch.Tensor:
@@ -46,16 +50,13 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
             logits = logits.unsqueeze(0)
         # get target
         target = batch["target"].to(logits.dtype)
-        # get train_mean and train_std
-        train_mean = float(batch["train_mean"][0] if "train_mean" in batch else 0)
-        train_std = float(batch["train_std"][0] if "train_std" in batch else 1)
         # calculate loss
         if self.num_classes == 1:
-            target = (target - train_mean) / train_std  # encode
+            target = self.normalizer.norm(target)
         loss = self._calculate_loss(logits, target)
         if self.num_classes == 1:
-            logits = (logits * train_std) + train_mean  # decode
-            target = (target * train_std) + train_mean  # decode
+            logits = self.normalizer.denorm(logits)
+            target = self.normalizer.denorm(target)
         # log metrics
         self._log_metrics(
             logits,
@@ -79,17 +80,13 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
             logits = logits.unsqueeze(0)
         # get target
         target = batch["target"].to(logits.dtype)
-        # get train_mean and train_std
-        train_mean = float(batch["train_mean"][0] if "train_mean" in batch else 0)
-        train_std = float(batch["train_std"][0] if "train_std" in batch else 1)
         # calculate loss
         if self.num_classes == 1:
-            target = (target - train_mean) / train_std  # encode
-        print(logits, target)
+            target = self.normalizer.norm(target)
         loss = self._calculate_loss(logits, target)
         if self.num_classes == 1:
-            logits = (logits * train_std) + train_mean  # decode
-            target = (target * train_std) + train_mean  # decode
+            logits = self.normalizer.denorm(logits)
+            target = self.normalizer.denorm(target)
         # log metrics
         self._log_metrics(
             logits,
@@ -113,16 +110,13 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
             logits = logits.unsqueeze(0)
         # get target
         target = batch["target"].to(logits.dtype)
-        # get train_mean and train_std
-        train_mean = float(batch["train_mean"][0] if "train_mean" in batch else 0)
-        train_std = float(batch["train_std"][0] if "train_std" in batch else 1)
         # calculate loss
         if self.num_classes == 1:
-            target = (target - train_mean) / train_std  # encode
+            target = self.normalizer.norm(target)
         loss = self._calculate_loss(logits, target)
         if self.num_classes == 1:
-            logits = (logits * train_std) + train_mean  # decode
-            target = (target * train_std) + train_mean  # decode
+            logits = self.normalizer.denorm(logits)
+            target = self.normalizer.denorm(target)
         # log metrics
         self._log_metrics(
             logits,
@@ -143,11 +137,8 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
         logits = logits.squeeze()
         if logits.ndim == 0:
             logits = logits.unsqueeze(0)
-        # get train_mean and train_std
-        train_mean = float(batch["train_mean"][0] if "train_mean" in batch else 0)
-        train_std = float(batch["train_std"][0] if "train_std" in batch else 1)
         if self.num_classes == 1:
-            logits = (logits * train_std) + train_mean  # decode
+            logits = self.normalizer.denorm(logits)
         elif self.num_classes == 2:
             logits = torch.sigmoid(logits)
             logits = logits > 0.5
@@ -198,6 +189,7 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
             loss,
             on_step=on_step,
             on_epoch=on_epoch,
+            prog_bar=True,
             sync_dist=True,
             batch_size=self.hparams.batch_size,
         )
@@ -207,6 +199,7 @@ class BaseModule(LightningModule, metaclass=ABCMeta):
                 self.mae(logits, target),
                 on_step=on_step,
                 on_epoch=on_epoch,
+                prog_bar=True,
                 sync_dist=True,
                 batch_size=self.hparams.batch_size,
             )

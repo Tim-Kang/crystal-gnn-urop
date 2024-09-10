@@ -23,6 +23,8 @@ def main(_config):
     # prepare data
     dm.prepare_data()
     # set model
+    _config["mean"] = dm.mean
+    _config["std"] = dm.std
     model = _models[_config["model_name"]](_config)
     print(model)
     # set checkpoint callback

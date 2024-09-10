@@ -22,7 +22,6 @@ class BaseDataModule(LightningDataModule):
         # configs for prepare_data
         self.cutoff = _config["cutoff"]
         self.max_neighbors = _config["max_neighbors"]
-
         # configs for dataloader
         self.batch_size = _config["batch_size"]
         self.num_workers = _config["num_workers"]

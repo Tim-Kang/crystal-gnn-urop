@@ -29,6 +29,8 @@ class JarvisDataModule(BaseDataModule):
         self.train_ratio = _config["train_ratio"]
         self.val_ratio = _config["val_ratio"]
         self.test_ratio = _config["test_ratio"]
+        self.mean = _config["mean"]
+        self.std = _config["std"]
 
     def prepare_data(self) -> None:
         """Download data from JARVIS and split into train, val, test.
@@ -72,6 +74,11 @@ class JarvisDataModule(BaseDataModule):
             and path_info.exists()
         ):
             print(f"load graph data from {path_target}")
+            info = json.load(open(path_info, "r"))
+            if self.mean is None:
+                self.mean = info["train_mean"]
+            if self.std is None:
+                self.std = info["train_std"]
             return
         # make path_target if not exists
         if not path_target.exists():
@@ -147,6 +154,10 @@ class JarvisDataModule(BaseDataModule):
         json.dump(info, open(path_info, "w"))
         print(info)
         print(f"DONE: saved data to {path_target}")
+        if self.mean is None:
+            self.mean = train_mean
+        if self.std is None:
+            self.std = train_std
 
     @property
     def dataset_cls(self) -> Dataset:

@@ -34,31 +34,34 @@ def main(_config):
     dm = _datamodules[_config["source"]](_config)
     # prepare data
     dm.prepare_data()
-    # set model
-    model = _models[_config["model_name"]](_config)
-    print(model)
-    # set checkpoint callback
-    checkpoint_callback = ModelCheckpoint(
-        save_top_k=1,
-        verbose=True,
-        monitor="val/loss",
-        mode="min",
-        filename="best-{epoch}",
-    )
-    lr_callback = LearningRateMonitor(logging_interval="step")
-    callbacks = [checkpoint_callback, lr_callback]
 
     for fold in range(5):
-        # set logger
+        # set model
+        _config["mean"] = dm.mean[f"fold{fold}"]
+        _config["std"] = dm.std[f"fold{fold}"]
+        model = _models[_config["model_name"]](_config)
+        print(model)
+        # set checkpoint callback
+        checkpoint_callback = ModelCheckpoint(
+            save_top_k=1,
+            verbose=True,
+            monitor="val/loss",
+            mode="min",
+            filename="best-{epoch}",
+        )
+        lr_callback = LearningRateMonitor(logging_interval="step")
+        callbacks = [checkpoint_callback, lr_callback]
         # set logger
         logger = WandbLogger(
             project=project_name,
             name=f"{exp_name}",
-            version=f"{exp_name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
-            if not _config["test_only"]
-            else None,
+            version=(
+                f"{exp_name}_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+                if not _config["test_only"]
+                else None
+            ),
             save_dir=log_dir,
-            log_model="all",  # TODO: all or True?
+            log_model="True",
             group=f"{_config['source']}-{_config['target']}-{_config['model_name']}",
         )
         # set trainer

@@ -25,6 +25,9 @@ class CustomDatamodule(BaseDataModule):
         self.train_ratio = _config["train_ratio"]
         self.val_ratio = _config["val_ratio"]
         self.test_ratio = _config["test_ratio"]
+        self.mean = _config["mean"]
+        self.std = _config["std"]
+        self.database_name = None  # this is not used for Matbench
 
     def prepare_data(self) -> None:
         """Prepare data for custom dataset.
@@ -76,7 +79,12 @@ class CustomDatamodule(BaseDataModule):
             and path_test.exists()
             and path_info.exists()
         ):
-            print(f"load graph data from {path_target}")
+            print(f"load graph data from {path_target} directory")
+            info = json.load(open(path_info, "r"))
+            if self.mean is None:
+                self.mean = info["train_mean"]
+            if self.std is None:
+                self.std = info["train_std"]
             return
         # split data
         data_train, data_test = train_test_split(
@@ -130,6 +138,10 @@ class CustomDatamodule(BaseDataModule):
         json.dump(info, open(path_info, "w"))
         print(info)
         print(f"DONE: saved data to {path_target}")
+        if self.mean is None:
+            self.mean = train_mean
+        if self.std is None:
+            self.std = train_std
 
     @property
     def dataset_cls(self) -> Dataset:

@@ -8,7 +8,7 @@ alignn_config = {}
 
 @ex.config
 def config():
-    project_name = "crystal-gnn_test"  # for wandb
+    project_name = "crystal-gnn-pyg"  # for wandb
     exp_name = "crystal-gnn"
     seed = 0
     test_only = False
@@ -40,6 +40,8 @@ def config():
     residual = True
     dropout = 0.0
     num_classes = 1  # if higher than 1, classification mode is activated
+    mean = None
+    std = None
 
     # optimizer
     optimizer = "adamw"  # "adam", "sgd", "adamw"

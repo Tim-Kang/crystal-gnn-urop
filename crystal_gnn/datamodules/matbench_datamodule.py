@@ -23,6 +23,8 @@ class MatbenchDataModule(BaseDataModule):
         self.val_ratio = _config["val_ratio"]
         self.test_ratio = _config["test_ratio"]
         self.database_name = None  # this is not used for Matbench
+        self.mean = {}
+        self.std = {}
 
         # load matbench data
         self.mb = MatbenchBenchmark(autoload=False, subset=[self.target])
@@ -57,6 +59,11 @@ class MatbenchDataModule(BaseDataModule):
                 and path_info.exists()
             ):
                 print(f"load graph data from {path_target} for fold {fold}")
+                info = json.load(open(path_info, "r"))
+                if self.mean is None:
+                    self.mean[f"fold{fold}"] = info["train_mean"]
+                if self.std is None:
+                    self.std[f"fold{fold}"] = info["train_std"]
                 continue
 
             inputs, outputs = self.task.get_train_and_val_data(fold)
@@ -117,6 +124,11 @@ class MatbenchDataModule(BaseDataModule):
             }
             json.dump(info, open(path_info, "w"))
             print(info)
+            print(f"DONE: saved data to {path_target}")
+            if self.mean is None:
+                self.mean[f"fold{fold}"] = train_mean
+            if self.std is None:
+                self.std[f"fold{fold}"] = train_std
 
     @property
     def dataset_cls(self) -> Dataset:
