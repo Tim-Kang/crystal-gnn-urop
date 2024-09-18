@@ -87,11 +87,15 @@ class CustomDatamodule(BaseDataModule):
                 self.std = info["train_std"]
             return
         # split data
-        data_train, data_test = train_test_split(
-            data, test_size=self.test_ratio, random_state=self.split_seed
+        data_train, data_val_test = train_test_split(
+            data,
+            test_size=self.test_ratio + self.val_ratio,
+            random_state=self.split_seed,
         )
-        data_train, data_val = train_test_split(
-            data_train, test_size=self.val_ratio, random_state=self.split_seed
+        data_val, data_test = train_test_split(
+            data_val_test,
+            test_size=self.test_ratio / (self.test_ratio + self.val_ratio),
+            random_state=self.split_seed,
         )
         print(
             f"split total {len(data)} data into train: {len(data_train)}, "
