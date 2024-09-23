@@ -32,7 +32,7 @@ def config():
     pin_memory = True
 
     # model
-    model_name = "cgcnn"  # "schnet", "cgcnn", "megnet"
+    model_name = "cgcnn"  # "schnet", "cgcnn", "megnet", "cgcnn_global"
     num_conv = 4
     hidden_dim = 128
     rbf_distance_dim = 80  # edge feature dimension
@@ -73,6 +73,12 @@ def schnet():
 def cgcnn():
     exp_name = "cgcnn"
     model_name = "cgcnn"
+
+
+@ex.named_config
+def cgcnn_global():
+    exp_name = "cgcnn_global"
+    model_name = "cgcnn_global"
 
 
 @ex.named_config

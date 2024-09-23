@@ -4,6 +4,9 @@ from tqdm import tqdm
 import numpy as np
 from ase import Atoms
 from ase.neighborlist import neighbor_list
+from pymatgen.core import Structure
+from pymatgen.io.ase import AseAtomsAdaptor
+
 
 import torch
 from torch.utils.data import Dataset
@@ -11,6 +14,15 @@ from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 
 from pytorch_lightning import LightningDataModule
+
+from matminer.featurizers.structure import OrbitalFieldMatrix
+
+
+def compute_glo(st: Structure):
+    featurizer = OrbitalFieldMatrix(period_tag=True)
+    ofm_vector = featurizer.featurize(st)
+    ofm_vector = ofm_vector[None, :]
+    return ofm_vector
 
 
 class BaseDataModule(LightningDataModule):
@@ -127,6 +139,7 @@ class BaseDataModule(LightningDataModule):
                 - pos[edge_src]
                 + torch.einsum("ni,nij->nj", edge_shift, lattice)
             )
+            global_feats = compute_glo(AseAtomsAdaptor.get_structure(atoms))
             graph_data = {
                 "pos": pos,
                 "lattice": lattice,
@@ -136,6 +149,7 @@ class BaseDataModule(LightningDataModule):
                 ),
                 "edge_shift": edge_shift,
                 "relative_vec": relative_vec,
+                "global_feats": torch.tensor(global_feats),
             }
             # add kwargs
             for k, v in kwargs.items():
